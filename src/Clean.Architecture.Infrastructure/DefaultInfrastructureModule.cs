@@ -2,6 +2,7 @@
 using Autofac;
 using Clean.Architecture.Core.Interfaces;
 using Clean.Architecture.Core.ProjectAggregate;
+using Clean.Architecture.Core.Services;
 using Clean.Architecture.Infrastructure.Data;
 using Clean.Architecture.SharedKernel;
 using Clean.Architecture.SharedKernel.Interfaces;
@@ -57,6 +58,16 @@ public class DefaultInfrastructureModule : Module
     builder.RegisterGeneric(typeof(EfRepository<>))
       .As(typeof(IRepository<>))
       .As(typeof(IReadRepository<>))
+      .InstancePerLifetimeScope();
+
+    builder.
+      RegisterType<EmailMessageSenderService>()
+      .As<IMessageSender>()
+      .InstancePerLifetimeScope();
+
+    builder
+      .RegisterType<GuestbookService>()
+      .As<IGuestbookService>()
       .InstancePerLifetimeScope();
 
     builder

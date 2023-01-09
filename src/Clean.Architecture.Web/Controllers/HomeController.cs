@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Clean.Architecture.Core.Entities;
+using Clean.Architecture.Core.Interfaces;
 using Clean.Architecture.Core.ProjectAggregate.Specifications;
 using Clean.Architecture.SharedKernel.Interfaces;
 using Clean.Architecture.Web.ViewModels;
@@ -16,7 +17,17 @@ namespace Clean.Architecture.Web.Controllers;
 public class HomeController : Controller
 {
   private readonly IRepository<Guestbook> _projectRepository;
-  public HomeController(IRepository<Guestbook> projectRepository) => _projectRepository = projectRepository;
+  private readonly IGuestbookService _guestbookService;
+
+  public HomeController(
+    IRepository<Guestbook> projectRepository, 
+    IGuestbookService guestbookService
+  )
+  {
+    _projectRepository = projectRepository;
+    _guestbookService = guestbookService;
+  }
+
   public async Task<IActionResult> Index()
   {
     if (!await _projectRepository.AnyAsync())
@@ -62,9 +73,7 @@ public class HomeController : Controller
       var guestBook = await _projectRepository.FirstOrDefaultAsync(
         new GuestbookByIdWithInclude(1, "Entries")
       );
-      guestBook.Entries.Add(model.NewEntry);
-      await _projectRepository.UpdateAsync(guestBook);
-
+      await _guestbookService.RecordEntry(guestBook, model.NewEntry);
       model = new HomePageViewModel { GuestbookName = guestBook.Name, PreviousEntries = guestBook.Entries };
     }
 
