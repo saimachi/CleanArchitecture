@@ -54,6 +54,23 @@ public class HomeController : Controller
     });
   }
 
+  [HttpPost]
+  public async Task<IActionResult> Index(HomePageViewModel model)
+  {
+    if (ModelState.IsValid)
+    {
+      var guestBook = await _projectRepository.FirstOrDefaultAsync(
+        new GuestbookByIdWithInclude(1, "Entries")
+      );
+      guestBook.Entries.Add(model.NewEntry);
+      await _projectRepository.UpdateAsync(guestBook);
+
+      model = new HomePageViewModel { GuestbookName = guestBook.Name, PreviousEntries = guestBook.Entries };
+    }
+
+    return View(model);
+  }
+
   [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
   public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 }

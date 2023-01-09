@@ -6,4 +6,5 @@ public class HomePageViewModel
 {
   public string GuestbookName { get; set; }
   public List<GuestbookEntry> PreviousEntries { get; set; }
+  public GuestbookEntry NewEntry { get; set; }
 }
